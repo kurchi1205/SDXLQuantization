@@ -24,7 +24,7 @@ torch.set_grad_enabled(False)
 from tqdm import tqdm
 
 # Bit-widths the Neural Engine is capable of accelerating
-NBITS = [1, 2, 4, 6, 8]
+NBITS = [6, 8]
 
 # Minimum number of elements in a weight tensor to be considered for palettization
 # (saves pre-analysis time)
@@ -32,32 +32,27 @@ PALETTIZE_MIN_SIZE = 1e5
 
 # Signal integrity is computed based on these 4 random prompts
 RANDOM_TEST_DATA = [
-    "a black and brown dog standing outside a door.",
-    "a person on a motorcycle makes a turn on the track.",
-    "inflatable boats sit on the arizona river, and on the bank",
-    "a white cat sitting under a white umbrella",
-    "black bear standing in a field of grass under a tree.",
-    "a train that is parked on tracks and has graffiti writing on it, with a mountain range in the background.",
-    "a cake inside of a pan sitting in an oven.",
-    "a table with paper plates and flowers in a home",
+    "a beautiful pinup portrait, art by Ben Templesmith & Russ Mills",
+    "a beautiful photogrpage of a landscape by Morgan Maassen, Erez Marom, Mikko Lagerstedt, William Patino",
+    "masterpiece, best quality, newest, absurdres, Classicism Art,Oil Painting, young girl wearing an ornate black and gold Cyberpunk Warframe, Abbott Handerson Thayer, innocent, white skin, pale skin, glowing blue eyes, long flowing green hair, in a dark space ship with a window looking out at a nebula, ",
+    "abstract artistic representation of Prometheus, art by Paul Lovering, Antonio J. Manzanedo.",
+    "'Will Pillage for Buzz',  Blonde Viking, realistic, manly",
+    "cubism, minimalism, oil painting, only white, silver, cream, red and blue colors, multi-figure conposition, vivid colors, professional photoshoot, expressive, quentin tarantino, style of georges braque",
 ]
 
 TEST_RESOLUTION = 768
 
-# RANDOM_TEST_IMAGE_DATA = [
-#     Image.open(
-#         requests.get(path, stream=True).raw).convert("RGB").resize(
-#             (TEST_RESOLUTION, TEST_RESOLUTION), Image.LANCZOS
-#     ) for path in [
-#         "http://farm1.staticflickr.com/106/298138827_19bb723252_z.jpg",
-#         "http://farm4.staticflickr.com/3772/9666116202_648cd752d6_z.jpg",
-#         "http://farm3.staticflickr.com/2238/2472574092_f5534bb2f7_z.jpg",
-#         "http://farm1.staticflickr.com/220/475442674_47d81fdc2c_z.jpg",
-#         "http://farm8.staticflickr.com/7231/7359341784_4c5358197f_z.jpg",
-#         "http://farm8.staticflickr.com/7283/8737653089_d0c77b8597_z.jpg",
-#         "http://farm3.staticflickr.com/2454/3989339438_2f32b76ebb_z.jpg",
-#         "http://farm1.staticflickr.com/34/123005230_13051344b1_z.jpg",
-# ]]
+RANDOM_TEST_IMAGE_DATA = [
+    Image.open(path).convert("RGB").resize(
+            (TEST_RESOLUTION, TEST_RESOLUTION), Image.LANCZOS
+    ) for path in [
+        "test_images/image_1.jpeg",
+        "test_images/image_2.jpeg",
+        "test_images/image_3.jpeg",
+        "test_images/image_4.jpeg",
+        "test_images/image_5.png",
+        "test_images/image_6.jpeg",
+]]
 
 
 # Copied from https://github.com/apple/coremltools/blob/7.0b1/coremltools/optimize/coreml/_quantization_passes.py#L602
@@ -265,14 +260,14 @@ def run_pipe(pipe):
         output_type="latent",
         generator=rng
     )
-    # if "Img2Img" in pipe.__class__.__name__:
-    #     kwargs["image"] = RANDOM_TEST_IMAGE_DATA
-    #     kwargs.pop("height")
-    #     kwargs.pop("width")
+    if "Img2Img" in pipe.__class__.__name__:
+        kwargs["image"] = RANDOM_TEST_IMAGE_DATA
+        kwargs.pop("height")
+        kwargs.pop("width")
 
-    #     # Run a single denoising step
-    #     kwargs["num_inference_steps"] = 4
-    #     kwargs["strength"] = 0.25
+        # Run a single denoising step
+        kwargs["num_inference_steps"] = 4
+        kwargs["strength"] = 0.25
 
     return np.array([latent.cpu().numpy() for latent in pipe.to(device)(**kwargs).images])
 
@@ -568,6 +563,11 @@ if __name__ == "__main__":
         help="Maximum number of recipes to generate (with decreasing model size and signal integrity)",
         default=7,
         type=int,
+    )
+    parser.add_argument(
+        "--image2image",
+        help="for image to image pipeline",
+        action='store_true'
     )
     parser.add_argument(
         "--custom-vae-version",

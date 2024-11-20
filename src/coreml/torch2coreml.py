@@ -12,7 +12,8 @@ import coremltools as ct
 from diffusers import (
     StableDiffusionPipeline,
     DiffusionPipeline,
-    ControlNetModel
+    ControlNetModel,
+    AutoPipelineForImage2Image
 )
 from diffusionkit.tests.torch2coreml import (
     convert_mmdit_to_mlpackage,
@@ -66,7 +67,7 @@ def compute_psnr(a, b):
     sumdeltasq = np.sqrt(sumdeltasq)
 
     eps = 1e-5
-    eps2 = 1e-10
+    eps2 = 1e-5
     psnr = 20 * np.log10((max_b + eps) / (sumdeltasq + eps2))
 
     return psnr
@@ -1454,6 +1455,14 @@ def get_pipeline(args):
                                             use_safetensors=True,
                                             vae=vae,
                                             use_auth_token=True)
+    elif args.image2image:
+        pipe = AutoPipelineForImage2Image.from_pretrained(
+                                            model_version,
+                                            torch_dtype=torch.float16,
+                                            variant="fp16",
+                                            use_safetensors=True,
+                                            use_auth_token=True
+                                        )
     else:
         pipe = DiffusionPipeline.from_pretrained(model_version,
                                             torch_dtype=torch.float16,
