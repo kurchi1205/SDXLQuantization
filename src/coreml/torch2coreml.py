@@ -981,7 +981,7 @@ def convert_unet(pipe, args, model_name=None):
             "The predicted noise to facilitate the reverse diffusion (denoising) process"
 
         # Set package version metadata
-        from python_coreml_stable_diffusion._version import __version__
+        from _version import __version__
         coreml_unet.user_defined_metadata["com.github.apple.ml-stable-diffusion.version"] = __version__
 
         coreml_unet.save(out_path)
