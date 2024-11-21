@@ -112,6 +112,11 @@ if __name__ == "__main__":
         help=("The string key into --pre-analysis-json-path's baselines dict"
     ))
     parser.add_argument(
+        "--image2image",
+        help="for image to image pipeline",
+        action='store_true'
+    )
+    parser.add_argument(
         "--custom-vae-version",
         type=str,
         default=None,
