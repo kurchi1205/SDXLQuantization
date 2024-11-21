@@ -1,0 +1,1 @@
+python -m mixed_bit_compression_apply.py --mlpackage-path <path-to-float16-unet-mlpackage> -o compressed_model --pre-analysis-json-path quant_recipes/stabilityai-stable-diffusion-xl-base-1.0_palettization_recipe.json --selected-recipe 

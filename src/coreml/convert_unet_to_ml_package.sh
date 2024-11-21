@@ -1,0 +1,1 @@
+python torch2coreml.py --model-version stabilityai/stable-diffusion-xl-base-1.0 --convert-unet -o ml_package_sdxl

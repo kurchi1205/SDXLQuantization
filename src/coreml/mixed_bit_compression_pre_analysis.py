@@ -58,7 +58,7 @@ RANDOM_TEST_IMAGE_DATA = [
 # Copied from https://github.com/apple/coremltools/blob/7.0b1/coremltools/optimize/coreml/_quantization_passes.py#L602
 from coremltools.converters.mil.mil import types
 def fake_linear_quantize(val, axis=-1, mode='LINEAR', dtype=types.int8):
-    from coremltools.optimize.coreml._quantization_passes import AffineQuantParams
+    from coreml_utils import AffineQuantParams
     from coremltools.converters.mil.mil.types.type_mapping import nptype_from_builtin
 
     val_dtype = val.dtype
@@ -268,8 +268,8 @@ def run_pipe(pipe):
         # Run a single denoising step
         kwargs["num_inference_steps"] = 4
         kwargs["strength"] = 0.25
-
-    return np.array([latent.cpu().numpy() for latent in pipe.to(device)(**kwargs).images])
+    pipe = pipe.to(device)
+    return np.array([latent.cpu().numpy() for latent in pipe(**kwargs).images])
 
 
 def benchmark_signal_integrity(pipe,

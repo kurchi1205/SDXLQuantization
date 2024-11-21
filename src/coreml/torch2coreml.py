@@ -67,7 +67,7 @@ def compute_psnr(a, b):
     sumdeltasq = np.sqrt(sumdeltasq)
 
     eps = 1e-5
-    eps2 = 1e-5
+    eps2 = 1e-2
     psnr = 20 * np.log10((max_b + eps) / (sumdeltasq + eps2))
 
     return psnr
@@ -1456,6 +1456,7 @@ def get_pipeline(args):
                                             vae=vae,
                                             use_auth_token=True)
     elif args.image2image:
+        print("Using this pipeline")
         pipe = AutoPipelineForImage2Image.from_pretrained(
                                             model_version,
                                             torch_dtype=torch.float16,
@@ -1724,6 +1725,11 @@ def parser_spec():
         "--sd3-version",
         action="store_true",
         help=("If specified, the pre-trained model will be treated as an SD3 model."))
+    parser.add_argument(
+        "--image2image",
+        help="for image to image pipeline",
+        action='store_true'
+    )
 
     return parser
 
