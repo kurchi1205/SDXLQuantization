@@ -1,2 +1,3 @@
 # compiled files
 *.pyc
+**/ml_package_sdxl
