@@ -1,1 +1,1 @@
-swift run StableDiffusionSample <prompt> --resource-path <output-mlpackages-directory/Resources> --output-path <output-dir> --compute-units {cpuAndGPU,cpuAndNeuralEngine} --xl
+swift run StableDiffusionSample "A dog running on the highway" --resource-path ml_package_sdxl_swift/Resources --output-path swift_results --compute-units cpuAndNeuralEngine --xl
