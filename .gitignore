@@ -4,3 +4,5 @@ src/nemoQuant/sd_xl_quantize.py
 src/nemoQuant/SDXL Quantization.ipynb
 src/nemoQuant/conf/sd_xl_quantize.yaml
 src/nemoQuant/nemo/stable_diffusion/diiffusion_engine.py
+
+**/.build
