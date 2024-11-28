@@ -100,3 +100,19 @@ public struct TextEncoder: TextEncoderModel {
     }
 
 }
+
+@available(iOS 16.2, macOS 13.1, *)
+public enum Script: String {
+    case latin, cyrillic, cjk
+
+#if canImport(NaturalLanguage.NLScript)
+    @available(iOS 17.0, macOS 14.0, *)
+    var asNLScript: NLScript {
+        switch self {
+        case .latin: return .latin
+        case .cyrillic: return .cyrillic
+        case .cjk: return .simplifiedChinese
+        }
+    }
+#endif
+}
