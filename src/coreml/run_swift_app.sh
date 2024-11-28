@@ -1,0 +1,1 @@
+swift run StableDiffusionSample <prompt> --resource-path <output-mlpackages-directory/Resources> --output-path <output-dir> --compute-units {cpuAndGPU,cpuAndNeuralEngine} --xl
