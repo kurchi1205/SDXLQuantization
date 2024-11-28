@@ -3,6 +3,7 @@
 
 import Foundation
 import CoreML
+import NaturalLanguage
 
 @available(iOS 16.2, macOS 13.1, *)
 public protocol TextEncoderModel: ResourceManaging {

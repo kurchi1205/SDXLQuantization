@@ -117,8 +117,8 @@ struct StableDiffusionSample: ParsableCommand {
         log("(Note: This can take a while the first time using these resources)\n")
         let pipeline: StableDiffusionPipelineProtocol
         var scaleFactor: Float32 = 0.18215
-        var shiftFactor: Float32 = 0.0
-        var timestepShift: Float32 = 1.0
+        let shiftFactor: Float32 = 0.0
+        let timestepShift: Float32 = 1.0
         if #available(macOS 14.0, iOS 17.0, *) {
             if isXL {
                 scaleFactor = 0.13025
@@ -129,21 +129,6 @@ struct StableDiffusionSample: ParsableCommand {
                     throw RunError.unsupported("Multilingual text encoder is not yet supported for Stable Diffusion XL")
                 }
                 pipeline = try StableDiffusionXLPipeline(
-                    resourcesAt: resourceURL,
-                    configuration: config,
-                    reduceMemory: reduceMemory
-                )
-            } else if isSD3 {
-                scaleFactor = 1.5305
-                shiftFactor = 0.0609
-                timestepShift = 3.0
-                if !controlnet.isEmpty {
-                    throw RunError.unsupported("ControlNet is not supported for Stable Diffusion 3")
-                }
-                if useMultilingualTextEncoder {
-                    throw RunError.unsupported("Multilingual text encoder is not yet supported for Stable Diffusion 3")
-                }
-                pipeline = try StableDiffusion3Pipeline(
                     resourcesAt: resourceURL,
                     configuration: config,
                     reduceMemory: reduceMemory
