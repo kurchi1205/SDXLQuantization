@@ -878,7 +878,7 @@ def convert_unet(pipe, args, model_name=None):
             pipe.unet.state_dict())
 
         if args.unet_support_controlnet:
-            from .unet import calculate_conv2d_output_shape
+            from unet import calculate_conv2d_output_shape
             additional_residuals_shapes = []
 
             # conv_in
@@ -1272,6 +1272,7 @@ def convert_safety_checker(pipe, args):
 def _get_controlnet_base_model(controlnet_model_version):
     from huggingface_hub import model_info
     info = model_info(controlnet_model_version)
+    print(info)
     return info.cardData.get("base_model", None)
 
 def convert_controlnet(pipe, args):
@@ -1322,7 +1323,7 @@ def convert_controlnet(pipe, args):
 
             encoder_hidden_states_shape = (
                 batch_size,
-                args.text_encoder_hidden_size or pipe.text_encoder.config.hidden_size,
+                args.text_encoder_hidden_size or (pipe.text_encoder.config.hidden_size + pipe.text_encoder_2.config.hidden_size),
                 1,
                 args.text_token_sequence_length or pipe.text_encoder.config.max_position_embeddings,
             )
@@ -1362,11 +1363,14 @@ def convert_controlnet(pipe, args):
         # Import controlnet model and initialize reference controlnet
         original_controlnet = ControlNetModel.from_pretrained(
             controlnet_model_version,
+            torch_dtype=torch.float16,
+            use_safetensors=True,
+            variant="fp16",
             use_auth_token=True
         )
         reference_controlnet = controlnet.ControlNetModel(**original_controlnet.config).eval()
-        load_state_dict_summary = reference_controlnet.load_state_dict(
-            original_controlnet.state_dict())
+        # load_state_dict_summary = reference_controlnet.load_state_dict(
+        #     original_controlnet.state_dict())
 
         num_residuals = reference_controlnet.get_num_residuals()
         output_keys = [f"additional_residual_{i}" for i in range(num_residuals)]
@@ -1465,6 +1469,7 @@ def get_pipeline(args):
                                             use_auth_token=True
                                         )
     else:
+        print(model_version)
         pipe = DiffusionPipeline.from_pretrained(model_version,
                                             torch_dtype=torch.float16,
                                             variant="fp16",
