@@ -8,6 +8,7 @@ import Foundation
 import StableDiffusion
 import UniformTypeIdentifiers
 import Cocoa
+// import UIKit
 import CoreImage
 import NaturalLanguage
 
@@ -18,6 +19,11 @@ struct StableDiffusionSample: ParsableCommand {
         abstract: "Run stable diffusion to generate images guided by a text prompt",
         version: "0.1"
     )
+    func logOSVersion() {
+        let osVersion = ProcessInfo.processInfo.operatingSystemVersion
+        let versionString = "Running on macOS \(osVersion.majorVersion).\(osVersion.minorVersion).\(osVersion.patchVersion)"
+        log(versionString)
+    }
 
     @Argument(help: "Input string prompt")
     var prompt: String
@@ -105,6 +111,7 @@ struct StableDiffusionSample: ParsableCommand {
     var script: Script = .latin
 
     mutating func run() throws {
+        logOSVersion()
         guard FileManager.default.fileExists(atPath: resourcePath) else {
             throw RunError.resources("Resource path does not exist \(resourcePath)")
         }
@@ -128,11 +135,13 @@ struct StableDiffusionSample: ParsableCommand {
                 if useMultilingualTextEncoder {
                     throw RunError.unsupported("Multilingual text encoder is not yet supported for Stable Diffusion XL")
                 }
+                print("Loading pipeline.")
                 pipeline = try StableDiffusionXLPipeline(
                     resourcesAt: resourceURL,
                     configuration: config,
                     reduceMemory: reduceMemory
                 )
+                print("Pipeline laoded")
             } else {
                 pipeline = try StableDiffusionPipeline(
                     resourcesAt: resourceURL,
@@ -219,16 +228,26 @@ struct StableDiffusionSample: ParsableCommand {
         _ = try saveImages(images, logNames: true)
     }
     
-    func convertImageToCGImage(imageURL: URL) throws -> CGImage {
-        let imageData = try Data(contentsOf: imageURL)
-        guard
-            let nsImage = NSImage(data: imageData),
-            let loadedImage = nsImage.cgImage(forProposedRect: nil, context: nil, hints: nil)
-        else {
-            throw RunError.resources("Image not available \(resourcePath)")
-        }
-        return loadedImage
-    }
+   func convertImageToCGImage(imageURL: URL) throws -> CGImage {
+       let imageData = try Data(contentsOf: imageURL)
+       guard
+           let nsImage = NSImage(data: imageData),
+           let loadedImage = nsImage.cgImage(forProposedRect: nil, context: nil, hints: nil)
+       else {
+           throw RunError.resources("Image not available \(resourcePath)")
+       }
+       return loadedImage
+   }
+    // func convertImageToCGImage(imageURL: URL) throws -> CGImage {
+    //     let imageData = try Data(contentsOf: imageURL)
+    //     guard
+    //         let uiImage = UIImage(data: imageData),
+    //         let cgImage = uiImage.cgImage
+    //     else {
+    //         throw NSError(domain: "ImageConversionError", code: 0, userInfo: [NSLocalizedDescriptionKey: "Failed to convert image at \(imageURL)"])
+    //     }
+    //     return cgImage
+    // }
 
     func handleProgress(
         _ progress: StableDiffusionPipeline.Progress,
@@ -353,7 +372,7 @@ enum RNGOption: String, ExpressibleByArgument {
 }
 
 @available(iOS 16.2, macOS 13.1, *)
-extension Script: ExpressibleByArgument {}
+extension Script: @retroactive ExpressibleByArgument {}
 
 if #available(iOS 16.2, macOS 13.1, *) {
     StableDiffusionSample.main()

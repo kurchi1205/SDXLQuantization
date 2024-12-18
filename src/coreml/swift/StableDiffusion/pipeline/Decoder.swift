@@ -18,6 +18,7 @@ public struct Decoder: ResourceManaging {
     ///     - configuration: configuration to be used when the model is loaded
     /// - Returns: A decoder that will lazily load its required resources when needed or requested
     public init(modelAt url: URL, configuration: MLModelConfiguration) {
+        print(configuration)
         self.model = ManagedMLModel(modelAt: url, configuration: configuration)
     }
 
@@ -53,13 +54,15 @@ public struct Decoder: ResourceManaging {
             let dict = [inputName: MLMultiArray(sampleScaled)]
             return try MLDictionaryFeatureProvider(dictionary: dict)
         }
+        print("inputs: ", inputs)
         let batch = MLArrayBatchProvider(array: inputs)
 
         // Batch predict with model
+        print("Batch predict")
         let results = try model.perform { model in
             try model.predictions(fromBatch: batch)
         }
-
+        print("Batch predict done")
         // Transform the outputs to CGImages
         let images: [CGImage] = try (0..<results.count).map { i in
             let result = results.features(at: i)
@@ -67,6 +70,7 @@ public struct Decoder: ResourceManaging {
             let output = result.featureValue(for: outputName)!.multiArrayValue!
             return try CGImage.fromShapedArray(MLShapedArray<Float32>(converting: output))
         }
+        print("CG Images created")
 
         return images
     }

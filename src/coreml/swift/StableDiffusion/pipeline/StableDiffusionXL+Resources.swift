@@ -94,7 +94,7 @@ public extension StableDiffusionXLPipeline {
         // Image Decoder
         // FIXME: Hardcoding to .cpuAndGPU since ANE doesn't support FLOAT32
         let vaeConfig = config.copy() as! MLModelConfiguration
-        vaeConfig.computeUnits = .cpuAndGPU
+        vaeConfig.computeUnits = .cpuOnly
         let decoder = Decoder(modelAt: urls.decoderURL, configuration: vaeConfig)
 
         // Optional Image Encoder

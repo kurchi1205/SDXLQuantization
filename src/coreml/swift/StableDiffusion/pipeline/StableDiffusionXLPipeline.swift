@@ -40,7 +40,7 @@ public struct StableDiffusionXLPipeline: StableDiffusionPipelineProtocol {
     /// when needed and aggressively unload their resources after
     ///
     /// This will increase latency in favor of reducing memory
-    var reduceMemory: Bool = false
+    var reduceMemory: Bool = true
 
     /// Creates a pipeline using the specified models and tokenizer
     ///
@@ -67,6 +67,8 @@ public struct StableDiffusionXLPipeline: StableDiffusionPipelineProtocol {
         self.decoder = decoder
         self.encoder = encoder
         self.reduceMemory = reduceMemory
+
+        print(self.unetRefiner)
     }
 
     /// Load required resources for this pipeline
@@ -77,10 +79,14 @@ public struct StableDiffusionXLPipeline: StableDiffusionPipelineProtocol {
         if reduceMemory {
             try prewarmResources()
         } else {
+            print("Loading Resources")
             try textEncoder2.loadResources()
+            print("Text encoder loaded")
             try unet.loadResources()
+            print("Unet loaded")
             try decoder.loadResources()
-
+            print("decoder loaded")
+            print("Basic Resources loaded")
             do {
                 try textEncoder?.loadResources()
             } catch {
@@ -151,7 +157,7 @@ public struct StableDiffusionXLPipeline: StableDiffusionPipelineProtocol {
         // SDXL Refiner has a latentTimeIdShape of [2, 5]
         // SDXL Base has either [12] or [2, 6]
         let isRefiner = unet.latentTimeIdShape.last == 5
-
+        print("Is Refiner: ", isRefiner)
         // Setup geometry conditioning for base/refiner inputs
         var baseInput: ModelInputs?
         var refinerInput: ModelInputs?
@@ -204,8 +210,9 @@ public struct StableDiffusionXLPipeline: StableDiffusionPipelineProtocol {
 
         // Calculate which step to swap to refiner
         let refinerStartStep = Int(Float(timeSteps.count) * config.refinerStart)
-
+        print("Refiner start step: ", refinerStartStep)
         // De-noising loop
+        let startTime = Date()
         for (step,t) in timeSteps.enumerated() {
             // Expand the latents for classifier-free guidance
             // and input to the Unet noise prediction model
@@ -270,6 +277,10 @@ public struct StableDiffusionXLPipeline: StableDiffusionPipelineProtocol {
                 return []
             }
         }
+        let endTime = Date()
+        let timeInterval = endTime.timeIntervalSince(startTime) // duration in seconds
+        // Print time taken
+        print("Time taken for the loop: \(timeInterval) seconds")
 
         // Unload resources
         if reduceMemory {
@@ -388,7 +399,7 @@ public struct StableDiffusionXLPipeline: StableDiffusionPipelineProtocol {
                 decoder.unloadResources()
             }
         }
-        
+        print("Decoding images")
         return try decoder.decode(latents, scaleFactor: config.decoderScaleFactor)
     }
 

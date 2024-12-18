@@ -47,11 +47,11 @@ RANDOM_TEST_IMAGE_DATA = [
             (TEST_RESOLUTION, TEST_RESOLUTION), Image.LANCZOS
     ) for path in [
         "test_images/image_1.jpeg",
-        "test_images/image_2.jpeg",
-        "test_images/image_3.jpeg",
-        "test_images/image_4.jpeg",
-        "test_images/image_5.png",
-        "test_images/image_6.jpeg",
+        # "test_images/image_2.jpeg",
+        # "test_images/image_3.jpeg",
+        # "test_images/image_4.jpeg",
+        # "test_images/image_5.png",
+        # "test_images/image_6.jpeg",
 ]]
 
 
