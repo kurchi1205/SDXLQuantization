@@ -40,7 +40,7 @@ public struct StableDiffusionXLPipeline: StableDiffusionPipelineProtocol {
     /// when needed and aggressively unload their resources after
     ///
     /// This will increase latency in favor of reducing memory
-    var reduceMemory: Bool = true
+    var reduceMemory: Bool = false
 
     /// Creates a pipeline using the specified models and tokenizer
     ///

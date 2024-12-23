@@ -238,16 +238,16 @@ struct StableDiffusionSample: ParsableCommand {
        }
        return loadedImage
    }
-    // func convertImageToCGImage(imageURL: URL) throws -> CGImage {
-    //     let imageData = try Data(contentsOf: imageURL)
-    //     guard
-    //         let uiImage = UIImage(data: imageData),
-    //         let cgImage = uiImage.cgImage
-    //     else {
-    //         throw NSError(domain: "ImageConversionError", code: 0, userInfo: [NSLocalizedDescriptionKey: "Failed to convert image at \(imageURL)"])
-    //     }
-    //     return cgImage
-    // }
+//     func convertImageToCGImage(imageURL: URL) throws -> CGImage {
+//         let imageData = try Data(contentsOf: imageURL)
+//         guard
+//             let uiImage = UIImage(data: imageData),
+//             let cgImage = uiImage.cgImage
+//         else {
+//             throw NSError(domain: "ImageConversionError", code: 0, userInfo: [NSLocalizedDescriptionKey: "Failed to convert image at \(imageURL)"])
+//         }
+//         return cgImage
+//     }
 
     func handleProgress(
         _ progress: StableDiffusionPipeline.Progress,
