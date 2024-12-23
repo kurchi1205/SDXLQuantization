@@ -41,6 +41,7 @@ public struct StableDiffusionXLPipeline: StableDiffusionPipelineProtocol {
     ///
     /// This will increase latency in favor of reducing memory
     var reduceMemory: Bool = false
+    let modelManager = PyTorchModelManager()
 
     /// Creates a pipeline using the specified models and tokenizer
     ///
@@ -288,8 +289,10 @@ public struct StableDiffusionXLPipeline: StableDiffusionPipelineProtocol {
         }
         unetRefiner?.unloadResources()
 
-
+        // print(denoisedLatents)
+        // print(MLTensor(denoisedLatents))
         // Decode the latent samples to images
+        let image = modelManager.decodeImage(inputData: denoisedLatents)
         return try decodeToImages(denoisedLatents, configuration: config)
     }
 
