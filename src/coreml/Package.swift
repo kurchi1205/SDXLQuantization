@@ -20,19 +20,22 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.2.3"),
         .package(url: "https://github.com/huggingface/swift-transformers.git", exact: "0.1.8"),
+        .package(url: "https://github.com/pvieito/PythonKit.git", branch: "master")
     ],
     targets: [
         .target(
             name: "StableDiffusion",
             dependencies:  [
                 .product(name: "Transformers", package: "swift-transformers"),
+                .product(name: "PythonKit", package: "PythonKit"),
             ],
             path: "swift/StableDiffusion"),
         .executableTarget(
             name: "StableDiffusionCLI",
             dependencies: [
                 "StableDiffusion",
-                .product(name: "ArgumentParser", package: "swift-argument-parser")],
+                .product(name: "ArgumentParser", package: "swift-argument-parser"),
+                .product(name: "PythonKit", package: "PythonKit")],
             path: "swift/StableDiffusionCLI"),
         .testTarget(
             name: "StableDiffusionTests",

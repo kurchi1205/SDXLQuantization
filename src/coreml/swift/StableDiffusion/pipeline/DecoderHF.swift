@@ -10,14 +10,78 @@ func convert_to_multi(_ latents: [MLShapedArray<Float32>]) -> [MLMultiArray] {
     return inputs
 }
 
-func convert_to_array(_ latents: [MLMultiArray]) -> [Array] {
-    let inputs: [Array] = latents.map { sample in
-            let sample_array = sample
-            return Array(UnsafeBufferPointer(start: multiArray.dataPointer.assumingMemoryBound(to: Float32.self), count: multiArray.count))
-        }
+func convertToNumpyArray(_ latents: [MLMultiArray]) -> [PythonObject] {
+    let np = Python.import("numpy")  // Import NumPy in PythonKit
+    
+    let inputs: [PythonObject] = latents.map { sample in
+        // Convert MLMultiArray to a Swift array
+        let count = sample.count
+        let pointer = sample.dataPointer.bindMemory(to: Float32.self, capacity: count)
+        let swiftArray = Array(UnsafeBufferPointer(start: pointer, count: count))
+        
+        // Convert Swift array to a NumPy array
+        let numpyArray = np.array(swiftArray).reshape(sample.shape.map { Int(truncating: $0) })
+        return numpyArray
+    }
     return inputs
 }
 
+
+func loadCGImage(fromPath path: String) -> CGImage? {
+    // Create a URL from the file path
+    guard let url = URL(string: "file://\(path)") else {
+        print("Invalid file path: \(path)")
+        return nil
+    }
+    
+    // Create an image source from the URL
+    guard let imageSource = CGImageSourceCreateWithURL(url as CFURL, nil) else {
+        print("Failed to create image source from URL")
+        return nil
+    }
+    
+    // Create a CGImage from the image source
+    let options: [CFString: Any] = [:] // Add options if needed
+    guard let cgImage = CGImageSourceCreateImageAtIndex(imageSource, 0, options as CFDictionary) else {
+        print("Failed to create CGImage from image source")
+        return nil
+    }
+    
+    return cgImage
+}
+
+func loadAllImagesFromTmpFolder() -> [CGImage] {
+    let tmpFolderPath = "/Users/prerana1298/computing/repo/SDXLQuantization/src/coreml/tmp"
+    var images: [CGImage] = []
+    
+    do {
+        // Get all files in the tmp folder
+        let fileManager = FileManager.default
+        let files = try fileManager.contentsOfDirectory(atPath: tmpFolderPath)
+        
+        for file in files {
+            let filePath = "\(tmpFolderPath)/\(file)"
+            
+            // Check if the file is an image
+            if file.lowercased().hasSuffix(".png") || file.lowercased().hasSuffix(".jpg") || file.lowercased().hasSuffix(".jpeg") {
+                if let cgImage = loadCGImage(fromPath: filePath) {
+                    images.append(cgImage)
+                }
+            }
+        }
+        
+        // Delete all files in the tmp folder
+        // for file in files {
+        //     let filePath = "\(tmpFolderPath)/\(file)"
+        //     try fileManager.removeItem(atPath: filePath)
+        // }
+        
+    } catch {
+        print("Error reading or deleting files in tmp folder: \(error)")
+    }
+    
+    return images
+}
 
 class PyTorchModelManager {
     // private let python = Python.import("decoder_hf")
@@ -34,22 +98,12 @@ class PyTorchModelManager {
 
     }
     
-    func decodeImage(inputData: [MLShapedArray<Float32>]) -> [MLShapedArray<Float32>] {
-        
-        // // Convert MLShapedArray to numpy array
-        // let shape = inputData.shape
-        // let buffer = numpy.array(Array(UnsafeBufferPointer(start: inputData.scalars, count: inputData.count)))
-        // let reshaped = buffer.reshape(shape.map { Int($0) })
+    func decodeImage(inputData: [MLShapedArray<Float32>]) -> [CGImage?] {
         let inputData_multi = convert_to_multi(inputData)
-        print(inputData_multi)
-        let inputData_array = convert_to_array(inputData_multi)
-        print(inputData_array)
+        let inputData_array = convertToNumpyArray(inputData_multi)
         // Call Python decode function
-        // let result = python.decoder.decode_images(reshaped)
-        
-        // Convert result back to MLShapedArray
-        // let resultArray = Array<Float32>(numpy: result.numpy())
-        return inputData
-        
+        python.decoder.decode_images(inputData_array)
+        let images = loadAllImagesFromTmpFolder()
+        return images
     }
 }

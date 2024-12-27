@@ -85,8 +85,8 @@ public struct StableDiffusionXLPipeline: StableDiffusionPipelineProtocol {
             print("Text encoder loaded")
             try unet.loadResources()
             print("Unet loaded")
-            try decoder.loadResources()
-            print("decoder loaded")
+            // try decoder.loadResources()
+            // print("decoder loaded")
             print("Basic Resources loaded")
             do {
                 try textEncoder?.loadResources()
@@ -115,7 +115,7 @@ public struct StableDiffusionXLPipeline: StableDiffusionPipelineProtocol {
         textEncoder2.unloadResources()
         unet.unloadResources()
         unetRefiner?.unloadResources()
-        decoder.unloadResources()
+        // decoder.unloadResources()
         encoder?.unloadResources()
     }
 
@@ -123,7 +123,7 @@ public struct StableDiffusionXLPipeline: StableDiffusionPipelineProtocol {
     public func prewarmResources() throws {
         try textEncoder2.prewarmResources()
         try unet.prewarmResources()
-        try decoder.prewarmResources()
+        // try decoder.prewarmResources()
 
         do {
             try textEncoder?.prewarmResources()
@@ -292,8 +292,7 @@ public struct StableDiffusionXLPipeline: StableDiffusionPipelineProtocol {
         // print(denoisedLatents)
         // print(MLTensor(denoisedLatents))
         // Decode the latent samples to images
-        let image = modelManager.decodeImage(inputData: denoisedLatents)
-        return try decodeToImages(denoisedLatents, configuration: config)
+        return try modelManager.decodeImage(inputData: denoisedLatents)
     }
 
     func encodePrompt(_ prompt: String, forRefiner: Bool = false) throws -> (MLShapedArray<Float32>, MLShapedArray<Float32>) {
@@ -397,11 +396,11 @@ public struct StableDiffusionXLPipeline: StableDiffusionPipelineProtocol {
     }
 
     public func decodeToImages(_ latents: [MLShapedArray<Float32>], configuration config: Configuration) throws -> [CGImage?] {
-        defer {
-            if reduceMemory {
-                decoder.unloadResources()
-            }
-        }
+        // defer {
+        //     if reduceMemory {
+        //         decoder.unloadResources()
+        //     }
+        // }
         print("Decoding images")
         return try decoder.decode(latents, scaleFactor: config.decoderScaleFactor)
     }

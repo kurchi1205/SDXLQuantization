@@ -268,6 +268,26 @@ struct StableDiffusionSample: ParsableCommand {
         log("\n")
     }
 
+    func deleteAllFilesInTmpFolder() {
+        let tmpFolderPath = "/Users/prerana1298/computing/repo/SDXLQuantization/src/coreml/tmp"
+        let fileManager = FileManager.default
+        
+        do {
+            // Get all files in the tmp folder
+            let files = try fileManager.contentsOfDirectory(atPath: tmpFolderPath)
+            
+            // Delete each file in the tmp folder
+            for file in files {
+                let filePath = "\(tmpFolderPath)/\(file)"
+                try fileManager.removeItem(atPath: filePath)
+            }
+            
+            print("All files in the tmp folder have been deleted.")
+        } catch {
+            print("Error deleting files in tmp folder: \(error)")
+        }
+    }
+
     func saveImages(
         _ images: [CGImage?],
         step: Int? = nil,
@@ -299,6 +319,7 @@ struct StableDiffusionSample: ParsableCommand {
             }
             saved += 1
         }
+        deleteAllFilesInTmpFolder()
         return saved
     }
 
