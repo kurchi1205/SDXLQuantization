@@ -41,7 +41,7 @@ public struct StableDiffusionXLPipeline: StableDiffusionPipelineProtocol {
     ///
     /// This will increase latency in favor of reducing memory
     var reduceMemory: Bool = false
-    let modelManager = PyTorchModelManager()
+    // let modelManager = PyTorchModelManager()
 
     /// Creates a pipeline using the specified models and tokenizer
     ///
@@ -69,7 +69,6 @@ public struct StableDiffusionXLPipeline: StableDiffusionPipelineProtocol {
         self.encoder = encoder
         self.reduceMemory = reduceMemory
 
-        print(self.unetRefiner)
     }
 
     /// Load required resources for this pipeline
@@ -85,8 +84,8 @@ public struct StableDiffusionXLPipeline: StableDiffusionPipelineProtocol {
             print("Text encoder loaded")
             try unet.loadResources()
             print("Unet loaded")
-            // try decoder.loadResources()
-            // print("decoder loaded")
+            try decoder.loadResources()
+            print("decoder loaded")
             print("Basic Resources loaded")
             do {
                 try textEncoder?.loadResources()
@@ -115,7 +114,7 @@ public struct StableDiffusionXLPipeline: StableDiffusionPipelineProtocol {
         textEncoder2.unloadResources()
         unet.unloadResources()
         unetRefiner?.unloadResources()
-        // decoder.unloadResources()
+        decoder.unloadResources()
         encoder?.unloadResources()
     }
 
@@ -123,7 +122,7 @@ public struct StableDiffusionXLPipeline: StableDiffusionPipelineProtocol {
     public func prewarmResources() throws {
         try textEncoder2.prewarmResources()
         try unet.prewarmResources()
-        // try decoder.prewarmResources()
+        try decoder.prewarmResources()
 
         do {
             try textEncoder?.prewarmResources()
@@ -292,7 +291,8 @@ public struct StableDiffusionXLPipeline: StableDiffusionPipelineProtocol {
         // print(denoisedLatents)
         // print(MLTensor(denoisedLatents))
         // Decode the latent samples to images
-        return try modelManager.decodeImage(inputData: denoisedLatents)
+        // return try modelManager.decodeImage(inputData: denoisedLatents)
+        return try decodeToImages(denoisedLatents, configuration: config)
     }
 
     func encodePrompt(_ prompt: String, forRefiner: Bool = false) throws -> (MLShapedArray<Float32>, MLShapedArray<Float32>) {

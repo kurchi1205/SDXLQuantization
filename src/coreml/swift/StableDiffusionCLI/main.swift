@@ -319,7 +319,7 @@ struct StableDiffusionSample: ParsableCommand {
             }
             saved += 1
         }
-        deleteAllFilesInTmpFolder()
+        // deleteAllFilesInTmpFolder()
         return saved
     }
 

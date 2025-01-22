@@ -58,7 +58,7 @@ func loadAllImagesFromTmpFolder() -> [CGImage] {
         // Get all files in the tmp folder
         let fileManager = FileManager.default
         let files = try fileManager.contentsOfDirectory(atPath: tmpFolderPath)
-        
+
         for file in files {
             let filePath = "\(tmpFolderPath)/\(file)"
             
